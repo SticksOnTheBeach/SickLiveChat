@@ -1,5 +1,5 @@
 // apps/api/src/routes/auth.ts
-// Routes OAuth Discord : /auth/url, /auth/callback, /auth/me, /auth/logout
+// Routes OAuth discord : /auth/url, /auth/callback, /auth/me, /auth/logout
 
 import type { FastifyInstance } from "fastify";
 import {
@@ -24,14 +24,14 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
     return;
   }
 
-  // ── GET /auth/url — retourne l'URL de login Discord ─────────────────────
+  // ── GET /auth/url — retourne l'URL de login discord ─────────────────────
   fastify.get("/auth/url", async (_req, reply) => {
     const state = Math.random().toString(36).slice(2);
     const url = getOAuthUrl(state);
     return reply.send({ data: { url, state } });
   });
 
-  // ── GET /auth/callback — reçoit le code Discord et crée la session ───────
+  // ── GET /auth/callback — reçoit le code discord et crée la session ───────
   fastify.get<{ Querystring: { code?: string; state?: string; error?: string } }>(
     "/auth/callback",
     async (req, reply) => {

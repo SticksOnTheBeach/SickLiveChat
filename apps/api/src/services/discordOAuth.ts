@@ -1,5 +1,5 @@
 // apps/api/src/services/discordOAuth.ts
-// Gère le flux OAuth2 Discord pour la connexion via le site web.
+// Gère le flux OAuth2 discord pour la connexion via le site web.
 
 import { env } from "./env";
 import { prisma } from "./prisma";
@@ -9,7 +9,7 @@ const DISCORD_API = "https://discord.com/api/v10";
 const SCOPES = ["identify", "guilds"].join("%20");
 
 // ---------------------------------------------------------------------------
-// URL de redirection OAuth Discord
+// URL de redirection OAuth discord
 // ---------------------------------------------------------------------------
 export function getOAuthUrl(state: string): string {
   return (
@@ -56,7 +56,7 @@ export async function exchangeCode(code: string): Promise<{
 }
 
 // ---------------------------------------------------------------------------
-// Récupère le profil Discord de l'utilisateur
+// Récupère le profil discord de l'utilisateur
 // ---------------------------------------------------------------------------
 export async function getDiscordUser(
   accessToken: string
@@ -65,19 +65,19 @@ export async function getDiscordUser(
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
-  if (!res.ok) throw new Error("Failed to fetch Discord user");
+  if (!res.ok) throw new Error("Failed to fetch discord user");
   return res.json() as Promise<{ id: string; username: string; discriminator: string; avatar: string | null }>;
 }
 
 // ---------------------------------------------------------------------------
-// Récupère les serveurs Discord de l'utilisateur
+// Récupère les serveurs discord de l'utilisateur
 // ---------------------------------------------------------------------------
 export async function getDiscordGuilds(accessToken: string): Promise<DiscordGuild[]> {
   const res = await fetch(`${DISCORD_API}/users/@me/guilds`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
-  if (!res.ok) throw new Error("Failed to fetch Discord guilds");
+  if (!res.ok) throw new Error("Failed to fetch discord guilds");
   return res.json() as Promise<DiscordGuild[]>;
 }
 

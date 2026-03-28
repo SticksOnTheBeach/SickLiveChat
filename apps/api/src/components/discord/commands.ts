@@ -46,7 +46,7 @@ export const commandDefinitions: RESTPostAPIChatInputApplicationCommandsJSONBody
 
 export async function handleInteraction(interaction: ChatInputCommandInteraction): Promise<void> {
   if (!interaction.guildId) {
-    await interaction.reply({ content: "Utilisez cette commande dans un serveur Discord.", ephemeral: true });
+    await interaction.reply({ content: "Utilisez cette commande dans un serveur discord.", ephemeral: true });
     return;
   }
 
@@ -68,7 +68,7 @@ async function enqueueMedia(
 ): Promise<void> {
   const guildId = interaction.guildId!;
 
-  // Récupère la room associée à ce serveur Discord
+  // Récupère la room associée à ce serveur discord
   const room = await prisma.room.findUnique({
     where: { guildId },
     include: { guild: true },

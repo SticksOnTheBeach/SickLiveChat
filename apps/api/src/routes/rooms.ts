@@ -54,7 +54,7 @@ export async function roomRoutes(fastify: FastifyInstance): Promise<void> {
     return reply.send({ data: rooms.map(formatRoom) });
   });
 
-  // ── POST /rooms — crée une room pour un serveur Discord ─────────────────
+  // ── POST /rooms — crée une room pour un serveur discord ─────────────────
   fastify.post<{
     Body: { guildId: string; guildName: string; name: string };
   }>("/rooms", { preHandler: requireAuth }, async (req: any, reply) => {
@@ -67,7 +67,7 @@ export async function roomRoutes(fastify: FastifyInstance): Promise<void> {
     // Vérifie que la room n'existe pas déjà
     const existing = await prisma.room.findUnique({ where: { guildId } });
     if (existing) {
-      return reply.status(409).send({ error: "Une room existe déjà pour ce serveur Discord" });
+      return reply.status(409).send({ error: "Une room existe déjà pour ce serveur discord" });
     }
 
     // En mode cloud : vérifie que l'utilisateur est bien admin du serveur
