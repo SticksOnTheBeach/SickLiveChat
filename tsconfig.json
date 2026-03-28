@@ -14,7 +14,9 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["src/**/*"],
+  "include": [
+    "apps/api/src/**/*"
+  ],
   "exclude": [
     "../../LiveChatBot/node_modules", "dist"]
 }
