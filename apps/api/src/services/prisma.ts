@@ -1,7 +1,4 @@
-// src/services/prisma.ts
-// Exporte un singleton PrismaClient pour éviter les connexions multiples
-// dans les rechargements à chaud (ts-node-dev, hot reload).
-
+// apps/api/src/services/prisma.ts
 import { PrismaClient } from "@prisma/client";
 
 declare global {
@@ -12,10 +9,9 @@ declare global {
 export const prisma: PrismaClient =
   global.__prisma ??
   new PrismaClient({
-    log:
-      process.env["NODE_ENV"] === "development"
-        ? ["query", "warn", "error"]
-        : ["warn", "error"],
+    log: process.env["NODE_ENV"] === "development"
+      ? ["warn", "error"]
+      : ["warn", "error"],
   });
 
 if (process.env["NODE_ENV"] !== "production") {

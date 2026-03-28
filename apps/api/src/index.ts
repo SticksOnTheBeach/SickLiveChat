@@ -1,16 +1,13 @@
-// src/index.ts
-// Point d'entrée principal.
-// Charge les variables d'environnement (dotenv) et lance le serveur.
-
-import "dotenv/config"; // Charge .env avant tout autre import
+// apps/api/src/index.ts
+import "dotenv/config";
 import { runServer } from "./server";
 
-async function main(): Promise<void> {
+async function main() {
   try {
     await runServer();
-    console.log(`[main] Application démarrée avec succès.`);
+    console.log("[main] API démarrée.");
   } catch (err) {
-    console.error("[main] Erreur fatale au démarrage :", err);
+    console.error("[main] Erreur fatale :", err);
     process.exit(1);
   }
 }
