@@ -1,0 +1,40 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Queue {
+  id             String   @id @default(uuid())
+  type           String
+  content        String
+  author         String?
+  authorImage    String?
+  submissionDate DateTime @default(now())
+  executionDate  DateTime @default(now())
+  duration       Int
+  discordGuildId String
+
+  guild Guild @relation(fields: [discordGuildId], references: [id])
+
+  @@index([type])
+  @@index([discordGuildId, executionDate])
+  @@map("queue")
+}
+
+model Guild {
+  id               String    @id
+  busyUntil        DateTime?
+  defaultMediaTime Int?
+  maxMediaTime     Int?
+  displayMediaFull Boolean   @default(false)
+
+  queues Queue[]
+
+  @@map("guilds")
+}
