@@ -1,136 +1,77 @@
-# Stream Overlay — Alert Box temps réel
+# StreamOverlay v2 — Monorepo
 
-Bot Discord + API WebSocket pour afficher des médias en direct sur OBS.
+Bot Discord + WebSocket overlay + Dashboard web pour streamers.
 
-## Stack
+## Structure
 
-- **TypeScript** (Node.js 20+)
-- **Fastify** + **Socket.io** — API HTTP & WebSocket
-- **discord.js v14** — Slash Commands
-- **Prisma ORM** + **PostgreSQL**
+```
+stream-overlay/
+├── apps/
+│   ├── api/          Backend Fastify + Socket.io + Bot Discord
+│   └── web/          Frontend Qwik + Tailwind CSS (→ Vercel)
+├── packages/
+│   └── types/        Types TypeScript partagés
+├── vercel.json
+└── package.json
+```
 
----
+## Démarrage rapide
 
-## Installation
-
-### 1. Cloner et installer
-
+### 1. Installer les dépendances
 ```bash
 npm install
 ```
 
-### 2. Variables d'environnement
-
+### 2. Configurer le backend
 ```bash
+cd apps/api
 cp .env.example .env
-```
-
-Remplir `.env` :
-
-| Variable | Description |
-|---|---|
-| `DATABASE_URL` | `postgresql://user:pass@host:5432/db` |
-| `DISCORD_TOKEN` | Token du bot (portail développeurs Discord) |
-| `DISCORD_CLIENT_ID` | Application ID (portail développeurs Discord) |
-| `PORT` | Port HTTP (défaut : 3000) |
-| `PUBLIC_URL` | URL publique de l'overlay (ex: `https://monsite.com`) |
-
-### 3. Base de données
-
-```bash
-# Générer le client Prisma
+# Remplir .env avec vos clés Discord et DATABASE_URL
 npm run prisma:generate
-
-# Appliquer les migrations
 npm run prisma:migrate
 ```
 
-### 4. Démarrage
-
+### 3. Configurer le frontend
 ```bash
-# Développement
-npm run dev
-
-# Production
-npm run build && npm start
+cd apps/web
+cp .env.example .env
+# Mettre PUBLIC_API_URL=http://localhost:3000
 ```
 
----
+### 4. Lancer en développement
+```bash
+# Depuis la racine — lance api + web en parallèle
+npm run dev:api   # Backend sur :3000
+npm run dev:web   # Frontend sur :5173
+```
 
-## Utilisation
+## Variables d'environnement — API
 
-### Bot Discord
+| Variable | Requis | Description |
+|---|---|---|
+| `DATABASE_URL` | ✅ | PostgreSQL connection string |
+| `DISCORD_TOKEN` | ✅ | Token du bot Discord |
+| `DISCORD_CLIENT_ID` | ✅ | Application ID Discord |
+| `DISCORD_CLIENT_SECRET` | cloud | Secret OAuth2 Discord |
+| `MODE` | ❌ | `self-hosted` (défaut) ou `cloud` |
+| `PUBLIC_URL` | ❌ | URL publique du backend |
+| `FRONTEND_URL` | ❌ | URL du frontend Qwik |
+| `SESSION_SECRET` | ❌ | Clé secrète pour les sessions |
+
+## Déploiement
+
+- **Frontend** → Vercel (automatique depuis GitHub)
+- **Backend** → VPS avec `npm start` ou Docker
+- **Tunnel local** → `cloudflared tunnel --url http://localhost:3000`
+
+## Commandes Discord
 
 | Commande | Description |
 |---|---|
-| `/send <url> [duree] [texte]` | Envoie un média sur l'overlay |
-| `/client` | Affiche l'URL de votre overlay |
+| `/image [duree] [texte]` | Pièce jointe image |
+| `/video [duree] [texte]` | Pièce jointe vidéo |
+| `/url <lien> [duree] [texte]` | URL directe |
+| `/client` | URL overlay OBS |
 
-**Types supportés :**
-- Images : `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, `.avif`, `.svg`
-- Vidéos : `.mp4`, `.webm`, `.ogg`, `.mov`
-
-### OBS / Streamlabs
-
-1. Ajouter une **Source Navigateur**
-2. Coller l'URL affichée par `/client`
-3. Largeur : **1920**, Hauteur : **1080**
-4. Cocher **"Fond personnalisé transparent"**
-
----
-
-## Architecture
-
-```
-src/
-├── index.ts                    # Point d'entrée
-├── server.ts                   # Fastify + plugins + GracefulServer
-├── loaders/
-│   ├── discordLoader.ts        # Bot Discord + déploiement des commandes
-│   └── socketLoader.ts         # Gestion des rooms Socket.io
-├── components/discord/
-│   └── commands.ts             # Logique /send et /client
-└── services/
-    ├── env.ts                  # Validation des variables d'environnement
-    ├── prisma.ts               # Singleton PrismaClient
-    └── queueWorker.ts          # Worker de file d'attente
-
-public/
-└── overlay.html                # Frontend OBS (fond transparent)
-
-prisma/
-└── schema.prisma               # Schéma PostgreSQL
-```
-
-### Flux de données
-
-```
-Discord /send
-    │
-    ▼
-prisma.queue.create (executionDate calculée)
-    │
-    ▼
-queueWorker (poll toutes les 2s)
-    │  busyUntil dépassé ?
-    ▼
-io.to(guildId).emit('media:play', payload)
-    │
-    ▼
-overlay.html (OBS Browser Source)
-    └── <video autoplay> ou <img> affiché pendant `duration` secondes
-```
-
----
-
-## Arrêt propre
-
-L'application gère `SIGTERM` / `SIGINT` via `@gquittet/graceful-server` :
-
-1. Plus de nouvelles connexions acceptées
-2. Worker arrêté
-3. Bot Discord déconnecté
-4. Socket.io fermé
-5. Prisma / PostgreSQL déconnecté
-
-Idéal pour Docker, PM2, et déploiements Kubernetes.
+## Licence
+MIT
