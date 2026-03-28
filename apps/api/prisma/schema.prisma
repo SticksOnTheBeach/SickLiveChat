@@ -1,0 +1,105 @@
+// apps/api/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// User — compte créé via Discord OAuth
+// ---------------------------------------------------------------------------
+model User {
+  id            String    @id @default(uuid())
+  discordId     String    @unique
+  username      String
+  discriminator String    @default("0")
+  avatar        String?
+  accessToken   String?
+  refreshToken  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions      Session[]
+  rooms         Room[]
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Session — session HTTP après OAuth Discord
+// ---------------------------------------------------------------------------
+model Session {
+  id        String   @id @default(uuid())
+  token     String   @unique @default(uuid())
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@map("sessions")
+}
+
+// ---------------------------------------------------------------------------
+// Room — une room overlay par serveur Discord
+// ---------------------------------------------------------------------------
+model Room {
+  id               String    @id @default(uuid())
+  name             String
+  guildId          String    @unique
+  guildName        String
+  ownerId          String
+  defaultMediaTime Int       @default(30)
+  maxMediaTime     Int       @default(120)
+  displayMediaFull Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  owner            User      @relation(fields: [ownerId], references: [id])
+  guild            Guild?
+  queue            Queue[]
+
+  @@map("rooms")
+}
+
+// ---------------------------------------------------------------------------
+// Guild — état temps réel du bot Discord pour une room
+// ---------------------------------------------------------------------------
+model Guild {
+  id        String    @id
+  busyUntil DateTime?
+  roomId    String    @unique
+
+  room      Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  queues    Queue[]
+
+  @@map("guilds")
+}
+
+// ---------------------------------------------------------------------------
+// Queue — file d'attente des médias
+// ---------------------------------------------------------------------------
+model Queue {
+  id             String   @id @default(uuid())
+  type           String
+  content        String
+  author         String?
+  authorImage    String?
+  submissionDate DateTime @default(now())
+  executionDate  DateTime @default(now())
+  duration       Int
+  discordGuildId String
+  roomId         String
+
+  guild          Guild    @relation(fields: [discordGuildId], references: [id])
+  room           Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([type])
+  @@index([discordGuildId, executionDate])
+  @@map("queue")
+}
