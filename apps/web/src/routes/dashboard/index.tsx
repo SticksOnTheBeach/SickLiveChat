@@ -16,8 +16,14 @@ export default component$(() => {
     const guilds = useSignal<DiscordGuild[]>([]);
     const loadingGuilds = useSignal(false);
 
-    // Charge les rooms au démarrage côté client
+    // Sauvegarde le token depuis l URL puis charge les rooms
     useVisibleTask$(async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get("token");
+        if (urlToken) {
+            localStorage.setItem("auth_token", urlToken);
+            window.history.replaceState({}, "", window.location.pathname);
+        }
         const token = localStorage.getItem("auth_token");
         try {
             const res = await fetch(`${API_URL}/api/rooms`, {
