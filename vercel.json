@@ -1,9 +1,0 @@
-{
-  "framework": "qwik",
-  "buildCommand": "cd ../.. && npm run build --workspace=apps/web",
-  "outputDirectory": "apps/web/dist",
-  "installCommand": "npm install",
-  "env": {
-    "PUBLIC_API_URL": "@api_url"
-  }
-}
