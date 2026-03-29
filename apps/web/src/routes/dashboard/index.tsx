@@ -1,30 +1,44 @@
 // apps/web/src/routes/dashboard/index.tsx
-import { component$, useSignal, $, type QRL } from "@builder.io/qwik";
-import { routeLoader$, Link } from "@builder.io/qwik-city";
-import { api } from "../../lib/api";
+import { component$, useSignal, useVisibleTask$, $, type QRL } from "@builder.io/qwik";
+import { Link } from "@builder.io/qwik-city";
 import type { Room, DiscordGuild } from "../../lib/types";
 
-export const useRooms = routeLoader$(async () => {
-    const res = await api.rooms.list();
-    return res.data ?? [];
-});
+const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3000";
 
 export default component$(() => {
-    const rooms = useRooms();
+    const rooms = useSignal<Room[]>([]);
     const showModal = useSignal(false);
     const loading = useSignal(false);
     const error = useSignal("");
 
-    // Form state
     const roomName = useSignal("");
     const selectedGuild = useSignal<DiscordGuild | null>(null);
     const guilds = useSignal<DiscordGuild[]>([]);
     const loadingGuilds = useSignal(false);
 
+    // Charge les rooms au démarrage côté client
+    useVisibleTask$(async () => {
+        const token = localStorage.getItem("auth_token");
+        try {
+            const res = await fetch(`${API_URL}/api/rooms`, {
+                credentials: "include",
+                headers: { Authorization: token ? `Bearer ${token}` : "" },
+            });
+            const data = await res.json();
+            rooms.value = data.data ?? [];
+        } catch {
+            rooms.value = [];
+        }
+    });
+
     const loadGuilds = $(async () => {
         loadingGuilds.value = true;
+        const token = localStorage.getItem("auth_token");
         try {
-            const res = await fetch("/api/discord/guilds", { credentials: "include" });
+            const res = await fetch(`${API_URL}/api/discord/guilds`, {
+                credentials: "include",
+                headers: { Authorization: token ? `Bearer ${token}` : "" },
+            });
             const data = await res.json();
             guilds.value = data.data ?? [];
         } catch {
@@ -47,27 +61,35 @@ export default component$(() => {
         loading.value = true;
         error.value = "";
 
-        const res = await api.rooms.create({
-            guildId: selectedGuild.value.id,
-            guildName: selectedGuild.value.name,
-            name: roomName.value.trim(),
+        const token = localStorage.getItem("auth_token");
+        const res = await fetch(`${API_URL}/api/rooms`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: token ? `Bearer ${token}` : "",
+            },
+            body: JSON.stringify({
+                guildId: selectedGuild.value.id,
+                guildName: selectedGuild.value.name,
+                name: roomName.value.trim(),
+            }),
         });
 
+        const data = await res.json();
         loading.value = false;
 
-        if (res.error) {
-            error.value = res.error;
+        if (data.error) {
+            error.value = data.error;
             return;
         }
 
         showModal.value = false;
-        // Reload page to show new room
         window.location.reload();
     });
 
     return (
         <div class="p-8">
-            {/* Header */}
             <div class="flex items-center justify-between mb-8">
                 <div>
                     <h1 class="text-2xl font-bold">Mes rooms</h1>
@@ -82,7 +104,6 @@ export default component$(() => {
                 </button>
             </div>
 
-            {/* Room list */}
             {rooms.value.length === 0 ? (
                 <EmptyState onCreateClick$={openModal} />
             ) : (
@@ -93,7 +114,6 @@ export default component$(() => {
                 </div>
             )}
 
-            {/* Create modal */}
             {showModal.value && (
                 <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
                     <div class="bg-[#1a1a24] border border-white/10 rounded-2xl w-full max-w-md p-6">
@@ -102,13 +122,10 @@ export default component$(() => {
                             <button
                                 onClick$={() => { showModal.value = false; error.value = ""; }}
                                 class="text-white/40 hover:text-white text-xl leading-none"
-                            >
-                                ×
-                            </button>
+                            >×</button>
                         </div>
 
                         <div class="flex flex-col gap-4">
-                            {/* Room name */}
                             <div>
                                 <label class="text-xs text-white/50 font-medium mb-1.5 block">Nom de la room</label>
                                 <input
@@ -120,7 +137,6 @@ export default component$(() => {
                                 />
                             </div>
 
-                            {/* Guild picker */}
                             <div>
                                 <label class="text-xs text-white/50 font-medium mb-1.5 block">Serveur Discord</label>
                                 {loadingGuilds.value ? (
@@ -192,13 +208,11 @@ const RoomCard = component$(({ room }: { room: Room }) => (
             </div>
             <div class="w-2 h-2 rounded-full bg-emerald-500 mt-1" title="Actif" />
         </div>
-
         <div class="flex gap-3 text-xs text-white/30">
             <span>⏱ Défaut {room.defaultMediaTime}s</span>
             <span>·</span>
             <span>Max {room.maxMediaTime}s</span>
         </div>
-
         <div class="bg-black/30 rounded-lg px-3 py-2 text-xs text-white/30 font-mono truncate">
             {room.overlayUrl}
         </div>
