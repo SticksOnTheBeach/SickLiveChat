@@ -18,15 +18,5 @@
         }
       ]
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://fin-december-kit-concept.trycloudflare.com/api/:path*"
-    },
-    {
-      "source": "/auth/:path*",
-      "destination": "https://fin-december-kit-concept.trycloudflare.com/auth/:path*"
-    }
   ]
 }

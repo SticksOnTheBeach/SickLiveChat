@@ -47,14 +47,14 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
         const user = await upsertUser(discordUser, tokens.access_token, tokens.refresh_token);
         const sessionToken = await createSession(user.id);
 
-        return reply
-          .setCookie("session", sessionToken, {
-            httpOnly: true,
-            secure: process.env["NODE_ENV"] === "production",
-            sameSite: "lax",
-            maxAge: 30 * 24 * 60 * 60,
-            path: "/",
-          })
+          return reply
+              .setCookie("session", sessionToken, {
+                  httpOnly: true,
+                  secure: true,
+                  sameSite: "none",
+                  maxAge: 30 * 24 * 60 * 60,
+                  path: "/",
+              })
           .redirect(`${process.env["FRONTEND_URL"]}/dashboard`);
       } catch (err) {
         console.error("[auth] Erreur callback OAuth :", err);
