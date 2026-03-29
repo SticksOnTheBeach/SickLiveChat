@@ -2,7 +2,7 @@
 import { component$, useSignal, $, type QRL } from "@builder.io/qwik";
 import { routeLoader$, Link } from "@builder.io/qwik-city";
 import { api } from "../../lib/api";
-import type { Room, DiscordGuild } from "@stream-overlay/types";
+import type { Room, DiscordGuild } from "../../lib/types";
 
 export const useRooms = routeLoader$(async () => {
     const res = await api.rooms.list();
@@ -87,7 +87,7 @@ export default component$(() => {
                 <EmptyState onCreateClick$={openModal} />
             ) : (
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {rooms.value.map((room) => (
+                    {rooms.value.map((room: Room) => (
                         <RoomCard key={room.id} room={room} />
                     ))}
                 </div>

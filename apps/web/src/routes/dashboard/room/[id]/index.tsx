@@ -2,7 +2,7 @@
 import { component$, useSignal, $, Slot } from "@builder.io/qwik";
 import { routeLoader$, useNavigate } from "@builder.io/qwik-city";
 import { api } from "../../../../lib/api";
-import type { QueueItem } from "@stream-overlay/types";
+import type { QueueItem } from "../../../../lib/types";
 
 export const useRoomData = routeLoader$(async ({ params, redirect }) => {
     const [statusRes, queueRes] = await Promise.all([
@@ -137,7 +137,7 @@ export default component$(() => {
                             <div class="text-white/25 text-sm py-4 text-center">Aucun média en attente</div>
                         ) : (
                             <div class="flex flex-col gap-2">
-                                {data.value.queue.map((item, i) => (
+                                {data.value.queue.map((item: QueueItem, i: number) => (
                                     <QueueRow key={item.id} item={item} index={i} />
                                 ))}
                             </div>
