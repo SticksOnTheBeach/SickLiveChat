@@ -1,5 +1,5 @@
 // apps/web/src/routes/dashboard/index.tsx
-import { component$, useSignal, useVisibleTask$, $, type QRL } from "@builder.io/qwik";
+import { component$, useSignal, $, type QRL } from "@builder.io/qwik";
 import { routeLoader$, Link } from "@builder.io/qwik-city";
 import { api } from "../../lib/api";
 import type { Room, DiscordGuild } from "../../lib/types";
