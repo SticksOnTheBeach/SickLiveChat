@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import { Link } from "@builder.io/qwik-city";
+
 
 const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3000";
 
