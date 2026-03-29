@@ -24,12 +24,12 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
     return;
   }
 
-  // ── GET /auth/url — retourne l'URL de login discord ─────────────────────
-  fastify.get("/auth/url", async (_req, reply) => {
-    const state = Math.random().toString(36).slice(2);
-    const url = getOAuthUrl(state);
-    return reply.send({ data: { url, state } });
-  });
+    // ── GET /auth/url — redirige vers la page de login Discord ─────────────────────
+    fastify.get("/auth/url", async (_req, reply) => {
+        const state = Math.random().toString(36).slice(2);
+        const url = getOAuthUrl(state);
+        return reply.redirect(url);
+    });
 
   // ── GET /auth/callback — reçoit le code discord et crée la session ───────
   fastify.get<{ Querystring: { code?: string; state?: string; error?: string } }>(
