@@ -6,3 +6,6 @@ dist/
 Thumbs.db
 .vscode/
 .qwik/
+
+.vercel
+.env*.local
