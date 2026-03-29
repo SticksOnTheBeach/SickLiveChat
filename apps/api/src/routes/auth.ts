@@ -52,6 +52,7 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
                   httpOnly: true,
                   secure: true,
                   sameSite: "none",
+                  partitioned: true,
                   maxAge: 30 * 24 * 60 * 60,
                   path: "/",
               })

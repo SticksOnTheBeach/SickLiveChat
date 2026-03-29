@@ -18,9 +18,9 @@ export async function runServer() {
   const fastify = Fastify({ logger: { level: "info" } });
 
   await fastify.register(cors, {
-    origin: [env.FRONTEND_URL, "http://localhost:5173"],
+    origin: [env.FRONTEND_URL, "https://sick-live-chat.vercel.app"],
     credentials: true,
-    methods: ["GET", "POST", "PATCH", "DELETE"],
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   });
 
   await fastify.register(cookie, { secret: env.SESSION_SECRET });
