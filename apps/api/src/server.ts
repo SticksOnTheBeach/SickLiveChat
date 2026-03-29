@@ -21,7 +21,8 @@ export async function runServer() {
     origin: [env.FRONTEND_URL, "https://sick-live-chat.vercel.app"],
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-      exposedHeaders: ["set-cookie"],
+    exposedHeaders: ["set-cookie"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   });
 
   await fastify.register(cookie, { secret: env.SESSION_SECRET });

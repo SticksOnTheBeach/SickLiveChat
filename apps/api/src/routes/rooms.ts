@@ -10,15 +10,17 @@ import type { Room } from "@stream-overlay/types";
 
 // Middleware : vérifie la session et injecte l'utilisateur
 async function requireAuth(req: any, reply: any) {
-  if (isSelfHosted) return; // Self-hosted : pas d'auth
+    if (isSelfHosted) return;
+    let token = req.cookies?.["session"];
 
-  const token = req.cookies?.["session"];
-  if (!token) return reply.status(401).send({ error: "Non authentifié" });
+    if (!token && req.headers.authorization) {
+        token = req.headers.authorization.replace("Bearer ", "");
+    }
+    if (!token) return reply.status(401).send({ error: "Non authentifié" });
+    const user = await getUserFromSession(token);
+    if (!user) return reply.status(401).send({ error: "Session expirée" });
 
-  const user = await getUserFromSession(token);
-  if (!user) return reply.status(401).send({ error: "Session expirée" });
-
-  req.user = user;
+    req.user = user;
 }
 
 function buildOverlayUrl(guildId: string): string {

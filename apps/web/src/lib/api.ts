@@ -9,11 +9,15 @@ async function request<T>(
     path: string,
     options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
     try {
         const res = await fetch(`${API_URL}${path}`, {
             credentials: "include",
-            headers: { "Content-Type": "application/json", ...options.headers },
-            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": token ? `Bearer ${token}` : "",
+                ...options.headers
+            },
         });
         return res.json() as Promise<ApiResponse<T>>;
     } catch {

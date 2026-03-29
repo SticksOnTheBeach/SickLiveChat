@@ -1,5 +1,5 @@
 // apps/web/src/routes/dashboard/index.tsx
-import { component$, useSignal, $, type QRL } from "@builder.io/qwik";
+import { component$, useSignal, useVisibleTask$, $, type QRL } from "@builder.io/qwik";
 import { routeLoader$, Link } from "@builder.io/qwik-city";
 import { api } from "../../lib/api";
 import type { Room, DiscordGuild } from "../../lib/types";
@@ -7,6 +7,21 @@ import type { Room, DiscordGuild } from "../../lib/types";
 export const useRooms = routeLoader$(async () => {
     const res = await api.rooms.list();
     return res.data ?? [];
+});
+
+// À mettre dans un useVisibleTask$ ou au début de ton composant
+useVisibleTask$(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (token) {
+        localStorage.setItem('auth_token', token);
+        // On nettoie l'URL pour que ce soit propre
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+        // On force un petit rafraîchissement pour charger les données
+        window.location.reload();
+    }
 });
 
 export default component$(() => {

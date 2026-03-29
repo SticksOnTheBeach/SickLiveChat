@@ -56,7 +56,7 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
                   maxAge: 30 * 24 * 60 * 60,
                   path: "/",
               })
-          .redirect(`${process.env["FRONTEND_URL"]}/dashboard`);
+          .redirect(`${process.env["FRONTEND_URL"]}/dashboard?token=${sessionToken}`);
       } catch (err) {
         console.error("[auth] Erreur callback OAuth :", err);
         return reply.redirect(`${process.env["FRONTEND_URL"]}/?error=oauth_failed`);
