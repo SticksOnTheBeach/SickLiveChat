@@ -1,4 +1,4 @@
-# StreamOverlay v2 — Monorepo
+# Livechat CacaBox
 
 Bot Discord + WebSocket overlay + Dashboard web pour streamers.
 
